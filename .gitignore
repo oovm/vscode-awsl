@@ -1,0 +1,15 @@
+# IDEs
+.vscode
+.idea
+.vs
+
+# Node
+node_modules
+yarn.lock
+yarn-error.log
+package-lock.json
+
+# Release
+*.vsix
+*.tgz
+dist/

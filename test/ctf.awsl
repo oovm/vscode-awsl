@@ -1,0 +1,62 @@
+for a in [1, 2, 3] {
+    this.index
+}
+
+if a in [1, 2, 3] {
+
+}
+
+if a not in [1, 2, 3] {
+
+}
+
+
+in as
+as
+
+if a > b {
+
+}
+else if c {
+
+}
+ef d {
+
+}
+else {
+    e
+}
+
+a()
+
+
+b()
+
+if a is null or b is not null
+
+</>
+is
+not
+
+<>
+
+
+<title>{% block title %}{% endblock title %}</title>
+<ul>
+{% for user in users %}
+  <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+{% endfor %}
+</ul>
+
+
+
+block title;
+
+<title>{title}</title>
+<ul>{
+for user in users {
+    <li><a href=user.url>{user.username}</a></li>
+}
+}</ul>
+
+

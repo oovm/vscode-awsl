@@ -1,0 +1,108 @@
+{
+    "name": "vscode-awsl",
+    "private": true,
+    "displayName": "Awsl Language Support",
+    "description": "Highlight and formatter for Notedown",
+    "publisher": "aster",
+    "version": "0.1.0",
+    "icon": "assets/icon.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/GalAster/vscode-notedown.git"
+    },
+    "categories": [
+        "Programming Languages",
+        "Formatters"
+    ],
+    "scripts": {
+        "build:syntax": "ts-node syntax/build.ts",
+        "build:ts": "tsc -b",
+        "build": "wee build:syntax -t && wee build:ts -t",
+        "pack": "wee build && vsce package",
+        "lint": "tslint **/*.ts --fix"
+    },
+    "main": "./dist/extension.js",
+    "engines": {
+        "vscode": "^1.39.0"
+    },
+    "activationEvents": [
+        "onLanguage:awsl"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "awsl",
+                "aliases": [
+                    "AWSL"
+                ],
+                "extensions": [
+                    ".awsl"
+                ],
+                "filenames": [],
+                "filenamePatterns": [],
+                "mimetypes": [],
+                "configuration": "./syntax/awsl.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "awsl",
+                "scopeName": "source.awsl",
+                "path": "./syntax/awsl.tmLanguage.json"
+            },
+            {
+                "scopeName": "codeblock.awsl",
+                "path": "./syntax/awsl_extend.json",
+                "injectTo": [
+                    "source.awsl"
+                ]
+            },
+            {
+                "scopeName": "markdown.awsl.codeblock",
+                "path": "./syntax/awsl.markdown.json",
+                "injectTo": [
+                    "text.html.markdown"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.awsl": "awsl"
+                }
+            }
+        ],
+        "commands": [
+            {
+                "command": "awsl.format",
+                "title": "Awsl: Format File"
+            }
+        ],
+        "configuration": {
+            "title": "Awsl",
+            "properties": {
+                "awsl.useLanguageServer": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use Awsl Language Server"
+                },
+                "awsl.trace.server": {
+                    "type": "string",
+                    "default": "off",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "description": "Traces the communication between VS Code and the language server.",
+                    "scope": "window"
+                }
+            }
+        }
+    },
+    "dependencies": {
+        "vscode-languageclient": "^6.1.3"
+    },
+    "devDependencies": {
+        "@types/node": "^11.13.6",
+        "@types/vscode": "^1.50.0",
+        "tslint": "^6.0.0",
+        "typescript": "^3.8.2"
+    }
+}

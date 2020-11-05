@@ -1,0 +1,220 @@
+let raw = <>Hello {name}</>
+
+let my_var = 2
+
+
+"index" in path.page
+
+path.page.contains("index")
+
+
+"index" not in path.page
+
+!path.page.contains("index")
+
+some_var |> round
+
+
+if my_var {
+    <p>my_var</p>
+}
+else{
+    <p>Sorry, my_var isn't defined.</p>
+}
+
+
+
+for item in groups {
+    let style = scss"""
+    background-color: blue;
+    """
+    let scoped = sass"""
+
+    """
+    <p style=style>{item.name}</p>
+    <p style=style>{item.name}</p>
+}
+
+
+
+
+<title>{% block title %}{% endblock title %}</title>
+<ul>
+{% for user in users -%}
+  <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+{%- endfor %}
+</ul>
+
+
+let title = <> </>
+
+<title>{title}</title>
+<ul>
+{
+    for user in users {
+        <li><a href=user.url>{user.username}</a></li>
+    }
+}
+</ul>
+
+
+let b = title // clone
+
+title.
+
+
+let sidebar = <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/blog/">Blog</a></li>
+</ul>
+
+class Sidebar {
+
+}
+
+% impl Component for Sidebar
+class Sidebar: Component {
+
+}
+
+
+<div id="content">{sidebar}</div> % clone
+
+include base
+using
+
+data.unwrap_or("This is a string literal")
+
+let block content_to_be_upper_cased = <>
+    This will be upper-cased
+</>
+
+=======================================================
+
+<title>{% block title %}{% endblock title %}</title>
+<ul>
+{% for user in users %}
+  <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+{% endfor %}
+</ul>
+
+
+
+block title;
+
+<title>{title}</title>
+<ul>{
+for user in users {
+    <li><a href=user.url>{user.username}</a></li>
+}
+}</ul>
+
+=======================================================
+
+{% raw %}
+  Hello {{ name }}
+{% endraw %}
+
+
+
+{{ 1 + a |> length }}
+// is equal to
+{{ (1 + a) | length } // this will probably error
+
+// This will do what you wanted initially
+{{ a.length + 1 }}
+
+
+<length input=(1+a)/>
+
+
+if price < 10 or always_show {
+    <>Price is { price }.</>
+}
+ef price > 1000 and not rich {
+    <>That's expensive!.</>
+}
+else {
+    <>N/A</>
+}
+
+
+
+
+for key, value in products {
+    <>{this.index}. {this.name}</>
+}
+
+for key, value in products.reverse {
+    <>{this.index}. {this.name}</>
+}
+
+
+{% for product in products %}
+  {% if product.id == target_id %}{% break %}{% endif %}
+  {{loop.index}}. {{product.name}}
+{% endfor %}
+
+for product in products {
+    if product.id == target_id {
+        break
+    }
+    <>{loop.index}. {product.name}</>
+}
+
+
+{% macro input(label, type="text") %}
+    <label>
+        {{ label }}
+        <input type="{{type}}" />
+    </label>
+{% endmacro input %}
+
+
+def input(label, type="text") {
+    <label>
+        {label}
+        <input type="{{type}}" />
+    </label>
+    |> trim
+}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <link rel="stylesheet" href="style.css" />
+    <title>{% block title %}{% endblock title %} - My Webpage</title>
+    {% endblock head %}
+</head>
+<body>
+    <div id="content">{% block content %}{% endblock content %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
+        {% endblock footer %}
+    </div>
+</body>
+</html>
+
+
+<% '脚本' 标签，用于流程控制，无输出。
+- trim_left
+<%_ 删除其前面的空格符
+- safe_html
+<%= 输出数据到模板（输出是转义 HTML 标签）
+- unsafe_html
+<%- 输出非转义的数据到模板
+- comment
+<%# 注释标签，不执行、不输出内容
+
+<%% 输出字符串 '<%'
+%> 一般结束标签
+- trim_nl
+-%> 删除紧随其后的换行符
+_%> 将结束标签后面的空格符删除
+
+
+

@@ -1,0 +1,165 @@
+version: v0.1.0
+scopeName: source.awsl
+uuid: 77108132-b3a9-4456-b8e6-05fca177371a
+information_for_contributors:
+  - 'aster: galaster@foxmail.com'
+patterns:
+  - include: '#comment'
+  - include: '#keywords'
+  - include: '#string'
+  - include: '#number'
+  - include: '#symbol'
+repository:
+  comment:
+    patterns:
+      - name: comment.block.awsl
+        begin: (%%%)
+        beginCaptures:
+          '1': {name: punctuation.definition.comment.block.awsl}
+        end: (%%%)
+        endCaptures:
+          '1': {name: punctuation.definition.comment.block.awsl}
+        patterns:
+          - include: text.html.markdown
+      - name: comment.line.awsl
+        match: (%).*$\n?
+        captures:
+          '1': {name: punctuation.definition.comment.line.awsl}
+  keywords:
+    patterns:
+      - match: \b(using|macro|def|as|with|type|external|extending|where)\b
+        name: keyword.control.definition.awsl
+      - match: \b(if|else|ef|switch|match|case)\b
+        name: keyword.control.flow.awsl
+      - match: \b(do|while|loop|return|yield|break|pass)\b
+        name: keyword.control.loop.awsl
+      - begin: \b(for)\b
+        beginCaptures:
+          '1': {name: keyword.control.loop.awsl}
+        end: \b(in)\b
+        endCaptures:
+          '1': {name: keyword.control.loop.awsl}
+        patterns:
+          - include: '#symbol'
+      - match: \b(is|not|or|and|in)\b
+        name: keyword.operator.comparison.awsl
+      - match: \b(true|false)\b
+        name: keyword.control.awsl
+      - match: \b(null)\b
+        name: constant.language.null.awsl
+      - match: ¶[¶0-9]*
+        name: variable.parameter.input.ts
+      - match: ⁋[⁋0-9]*
+        name: variable.parameter.output.ts
+      - match: (##|#[0-9a-zA-Z]*|&)
+        name: variable.parameter.lambda.ts
+      - include: '#let'
+      - include: '#block'
+  let:
+    begin: \b(let)\b
+    beginCaptures:
+      '1': {name: storage.type.let.awsl}
+    end: ([_0-9a-zA-Z]+)\s*[;=]|[{]
+    endCaptures:
+      '1': {name: entity.name.function.awsl} # variable.other.readwrite.awsl
+    patterns:
+      - match: ([_0-9a-zA-Z]+)
+        name: storage.modifier.awsl
+  block:
+    begin: \b(block)\b
+    beginCaptures:
+      '1': {name: storage.type.trait.awsl}
+    end: ([_0-9a-zA-Z]+)\s*[{;]
+    endCaptures:
+      '1': {name: entity.name.type.trait.awsl}
+    patterns:
+      - match: ([_0-9a-zA-Z]+)
+        name: storage.modifier.awsl
+  operators:
+    patterns:
+      - match: \b(===?|=!=|<=|>=|<>)\b
+        name: keyword.operator.comparison.awsl
+      - match: \b(\|>|/@|@@@|@@|@)\b
+        name: keyword.operator.apply.awsl
+      - match: \b(-|\+|\*|\/|\^)\b
+        name: keyword.operator.arithmetic.awsl
+      - match: \b(\?=|:=|=)\b
+        name: keyword.operator.assignment.awsl
+      - match: \b(∈|<:|:>|<-|->|:?)\b
+        name: keyword.operator.set.awsl
+      - match: \b(<|>)\b
+        name: keyword.operator.comparison.awsl
+      - match: \b(!|¬)\b
+        name: keyword.operator.infix.awsl
+      - match: \b(\?|°)\b
+        name: keyword.operator.logical.awsl
+  number:
+    patterns:
+      - match: (?<!\w)(0x[0-9a-fA-F]+)(_[A-Za-z][A-Za-z0-9_]*)?(?!\w)
+        captures:
+          '1': {name: constant.numeric.hex.awsl}
+          '2': {name: keyword.control.handler.byte.awsl}
+      - match: (?<!\w)(0o[0-7]+)(_[A-Za-z][A-Za-z0-9_]*)?(?!\w)
+        captures:
+          '1': {name: constant.numeric.oct.awsl}
+          '2': {name: keyword.control.handler.byte.awsl}
+      - match: (?<!\w)(0b[01]+)(_[A-Za-z][A-Za-z0-9_]*)?(?!\w)
+        captures:
+          '1': {name: constant.numeric.bin.awsl}
+          '2': {name: keyword.control.handler.byte.awsl}
+      - match: ([\+\-]?(0|([1-9](([0-9]|_[0-9])+)?))(?:(?:\.(0|([1-9](([0-9]|_[0-9])+)?)))?\*\*[\+\-]?[1-9]_?[0-9]*|(?:\.[0-9_]*)))
+        captures:
+          '1': {name: constant.numeric.decimal.awsl}
+      - match: ([\+\-]?(0|[1-9][0-9]*))
+        captures:
+          '1': {name: constant.numeric.integer.awsl}
+      - match: (¯|¨)
+        captures:
+          '1': {name: constant.numeric.control.awsl}
+  string:
+    patterns:
+      - name: string.quoted.block.awsl
+        begin: ([A-Za-z_][A-Za-z0-9_]*)?\s*(''')
+        beginCaptures:
+          '1': {name: keyword.control.handler.string.awsl}
+          '2': {name: punctuation.definition.string.block.awsl}
+        end: (''')
+        endCaptures:
+          '1': {name: punctuation.definition.string.block.awsl}
+      - name: string.quoted.block.awsl
+        begin: ([A-Za-z_][A-Za-z0-9_]*)?\s*(""")
+        beginCaptures:
+          '1': {name: keyword.control.handler.string.awsl}
+          '2': {name: punctuation.definition.string.block.awsl}
+        end: (""")
+        endCaptures:
+          '1': {name: punctuation.definition.string.block.awsl}
+        patterns:
+          - match: \\([btnfr"\\\n/]|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})
+            name: constant.character.escape.awsl
+          - match: \\[^btnfr/"\\\n]
+            name: invalid.illegal.escape.awsl
+      - match: ([A-Za-z_][A-Za-z0-9_]*)?\s*(\'[^'\\]*(?:\\.[^'\\]*)*\')
+        captures:
+          '1': {name: keyword.control.handler.string.awsl}
+          '2': {name: string.quoted.single.awsl}
+      - match: ([A-Za-z_][A-Za-z0-9_]*)?\s*("[^"\\]*(?:\\.[^"\\]*)*")
+        captures:
+          '1': {name: keyword.control.handler.string.awsl}
+          '2': {name: string.quoted.single.awsl}
+        patterns:
+          - match: \\([btnfr"\\\n/]|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})
+            name: constant.character.escape.awsl
+          - match: \\[^btnfr/"\\\n]
+            name: invalid.illegal.escape.awsl
+  symbol:
+    patterns:
+      - match: \b(^@[a-zA-Z][_0-9a-zA-Z]*)\b
+        name: variable.parameter.macro.ts
+      - match: \b(\$[a-zA-Z][_0-9a-zA-Z]*)\b
+        name: variable.parameter.macro.ts
+      - match: \b([_a-zA-Z][_0-9a-zA-Z]*)\b
+        name: entity.name.function.awsl
+      - match: \b(::)\b
+        name: entity.name.function.namespace.awsl
+
