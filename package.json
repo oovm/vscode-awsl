@@ -51,13 +51,6 @@
                 "path": "./syntax/awsl.tmLanguage.json"
             },
             {
-                "scopeName": "codeblock.awsl",
-                "path": "./syntax/awsl_extend.json",
-                "injectTo": [
-                    "source.awsl"
-                ]
-            },
-            {
                 "scopeName": "markdown.awsl.codeblock",
                 "path": "./syntax/awsl.markdown.json",
                 "injectTo": [

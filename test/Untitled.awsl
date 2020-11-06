@@ -200,6 +200,29 @@ def input(label, type="text") {
 </html>
 
 
+<!DOCTYPE html>
+<html lang="en">
+<head>{
+block head {
+    <link rel="stylesheet" href="style.css" />
+    <title>{block title {}} - My Webpage</title>
+}
+}</head>
+<body>
+    <div id="content">{block content {}}</div>
+    <div id="footer">{
+    block footer {
+        <>&copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.</>
+    }
+    }</div>
+</body>
+</html>
+
+
+
+
+
+
 <% '脚本' 标签，用于流程控制，无输出。
 - trim_left
 <%_ 删除其前面的空格符

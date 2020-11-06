@@ -6,10 +6,10 @@ tab_width = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{arc,toml}]
+[*.YAML-tmLanguage]
 indent_style = space
 indent_size = 2
 
-[*.json]
+[*.{json,awsl}]
 indent_style = space
 indent_size = 4
