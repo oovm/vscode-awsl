@@ -18,7 +18,7 @@ some_var |> round
 if my_var {
     <p>my_var</p>
 }
-else{
+else {
     <p>Sorry, my_var isn't defined.</p>
 }
 
@@ -31,7 +31,7 @@ for item in groups {
     let scoped = sass"""
 
     """
-    <p style=style>{item.name}</p>
+    <p style=style>{item.name}></p>
     <p style=style>{item.name}</p>
 }
 
@@ -46,19 +46,22 @@ for item in groups {
 </ul>
 
 
-let title = <> </>
+block title;
+
+for user in users {
+    <li><a href=user.url>{user.username}</a></li>
+}
 
 <title>{title}</title>
-<ul>
-{
-    for user in users {
-        <li><a href=user.url>{user.username}</a></li>
-    }
+<ul>{
+for user in users {
+    <li><a href=user.url>{user.username}</a></li>
 }
-</ul>
+}</ul>
 
 
-let b = title // clone
+
+let b = title % clone
 
 title.
 
@@ -85,9 +88,9 @@ using
 
 data.unwrap_or("This is a string literal")
 
-let block content_to_be_upper_cased = <>
-    This will be upper-cased
-</>
+block content_to_be_upper_cased {
+    <>This will be upper-cased</>
+}
 
 =======================================================
 
@@ -176,7 +179,6 @@ def input(label, type="text") {
         {label}
         <input type="{{type}}" />
     </label>
-    |> trim
 }
 
 
@@ -199,24 +201,25 @@ def input(label, type="text") {
 </body>
 </html>
 
+{% extends "base.html" %}
+{% block title %}Index{% endblock title %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock head %}
+{% block content %}
+    <h1>Index</h1>
+    <p class="important">
+      Welcome to my awesome homepage.
+    </p>
+{% endblock content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>{
-block head {
-    <link rel="stylesheet" href="style.css" />
-    <title>{block title {}} - My Webpage</title>
-}
-}</head>
-<body>
-    <div id="content">{block content {}}</div>
-    <div id="footer">{
-    block footer {
-        <>&copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.</>
-    }
-    }</div>
-</body>
-</html>
+
+
+
+自底向上
 
 
 

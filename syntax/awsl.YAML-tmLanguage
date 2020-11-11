@@ -22,13 +22,21 @@ foldingStopMarker: |-
   |\{\{?/(if|foreach|capture|literal|foreach|php|section|strip)
   |^[^{]*\}
   )
+variables:
+  possiblyMultilineArrow: ((<\s*$)|({{possiblyMultilineArrowWithoutTypeParameters}}))  # during lookup treat ( followed by line end as arrow
+  jsxTagOrAtrributeIdentifier: '[_$[:alpha:]][-_$[:alnum:].]*'
+  jsxTagNamespace: (?:({{jsxTagOrAtrributeIdentifier}})(?<!\.|-)(:))?
+  jsxTagName: \s*{{jsxTagNamespace}}((?:[a-z][a-z0-9]*|({{jsxTagOrAtrributeIdentifier}}))(?<!\.|-))
+  jsxOpeningTagWithoutAttributes: (<){{jsxTagName}}?\s*(>)
+  jsxClosingTag: (</){{jsxTagName}}?\s*(>)
+  jsxTagStart: (<){{jsxTagName}}(?=((<\s*)|(\s+))(?!\?)|\/?>)
+  jsxTagStartLookahead: (?={{jsxTagStart}})
+  jsxLookBehindInExpression: (?<!\+\+|--)(?<=[({\[,?=>:*]|&&|\|\||\?|\*\/|{{lookBehindAwait}}|{{lookBehindReturn}}|{{lookBehindDefault}}|{{lookBehindYield}}|^)\s*
 patterns:
   - include: '#comment'
   - include: '#html'
   - include: '#keywords'
-  - include: '#string'
-  - include: '#number'
-  - include: '#symbol'
+  - include: '#tag-stuff'
 repository:
   comment:
     patterns:
@@ -68,19 +76,13 @@ repository:
         endCaptures:
           '1': {name: keyword.control.loop.awsl}
         patterns:
-          - include: '#symbol'
+          - include: '#tag-stuff'
       - match: \b(is|not|or|and|in)\b
         name: keyword.operator.comparison.awsl
       - match: \b(true|false)\b
         name: keyword.control.awsl
       - match: \b(null)\b
         name: constant.language.null.awsl
-      - match: ¶[¶0-9]*
-        name: variable.parameter.input.ts
-      - match: ⁋[⁋0-9]*
-        name: variable.parameter.output.ts
-      - match: (##|#[0-9a-zA-Z]*|&)
-        name: variable.parameter.lambda.ts
       - include: '#let'
       - include: '#block'
   let:
@@ -97,7 +99,7 @@ repository:
     begin: \b(block)\b
     beginCaptures:
       '1': {name: storage.type.trait.awsl}
-    end: ([_0-9a-zA-Z]+)\s*[{;]
+    end: ([_0-9a-zA-Z]+)\s*[{};]
     endCaptures:
       '1': {name: entity.name.type.trait.awsl}
     patterns:
@@ -180,16 +182,31 @@ repository:
             name: constant.character.escape.awsl
           - match: \\[^btnfr/"\\\n]
             name: invalid.illegal.escape.awsl
+      - match: (&[a-zA-Z]+;)|(&#[0-9]+;)
+        name: constant.character.escape.awsl
   symbol:
     patterns:
-      - match: \b(^@[a-zA-Z][_0-9a-zA-Z]*)\b
-        name: variable.parameter.macro.ts
-      - match: \b(\$[a-zA-Z][_0-9a-zA-Z]*)\b
-        name: variable.parameter.macro.ts
       - match: \b([_a-zA-Z][_0-9a-zA-Z]*)\b
-        name: entity.name.function.awsl
+        name: meta.function-call.generic.python
       - match: \b(::)\b
         name: entity.name.function.namespace.awsl
+  call:
+    patterns:
+      - begin: ([A-Za-z_][A-Za-z0-9_]*)\s*(\()
+        beginCaptures:
+          '1': {name: entity.name.tag.structure.any.awsl}
+          '2': {name: punctuation.definition.tag.begin.awsl}
+        end: (\))
+        endCaptures:
+          '1': {name: punctuation.definition.tag.end.awsl}
+        patterns:
+          - include: '#tag-stuff'
+  key:
+    patterns:
+      - match: \b([a-zA-Z][_0-9a-zA-Z]*)\b\s*(=)
+        captures:
+          '1': {name: constant.language.key.awsl}
+          '2': {name: keyword.operator.assignment.awsl}
   html:
     patterns:
       - name: meta.tag.sgml.html
@@ -256,8 +273,21 @@ repository:
         patterns:
           - include: '#tag-stuff'
 
+      - match: (<>)
+        name: entity.name.tag.fragment.begin.html
+      - match: (</>)
+        name: entity.name.tag.fragment.end.html
+      - begin: (\{)
+        end: (\})
+        patterns:
+          - include: '#html'
+          - include: '#tag-stuff'
   tag-stuff:
     patterns:
       - include: '#string'
+      - include: '#number'
+      - include: '#key'
+      - include: '#keywords'
+      - include: '#call'
       - include: '#number'
       - include: '#symbol'

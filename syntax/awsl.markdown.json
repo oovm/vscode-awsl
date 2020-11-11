@@ -1,5 +1,5 @@
 {
-    "scopeName": "markdown.note.codeblock",
+    "scopeName": "markdown.awsl.codeblock",
     "injectionSelector": "L:text.html.markdown",
     "patterns": [
         {

@@ -8,6 +8,17 @@
     "keyEquivalent": "^~H",
     "foldingStartMarker": "(?x)\n(<(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)\\b.*?>\n|<!--(?!.*--\\s*>)\n|^<!--\\ \\#tminclude\\ (?>.*?-->)$\n|<\\?(?:php)?.*\\b(if|for(each)?|while)\\b.+:\n|\\{\\{?(if|foreach|capture|literal|foreach|php|section|strip)\n|\\{\\s*($|\\?>\\s*$|//|/\\*(.*\\*/\\s*$|(?!.*?\\*/)))\n)",
     "foldingStopMarker": "(?x)\n(</(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)>\n|^(?!.*?<!--).*?--\\s*>\n|^<!--\\ end\\ tminclude\\ -->$\n|<\\?(?:php)?.*\\bend(if|for(each)?|while)\\b\n|\\{\\{?/(if|foreach|capture|literal|foreach|php|section|strip)\n|^[^{]*\\}\n)",
+    "variables": {
+        "possiblyMultilineArrow": "((<\\s*$)|({{possiblyMultilineArrowWithoutTypeParameters}}))",
+        "jsxTagOrAtrributeIdentifier": "[_$[:alpha:]][-_$[:alnum:].]*",
+        "jsxTagNamespace": "(?:({{jsxTagOrAtrributeIdentifier}})(?<!\\.|-)(:))?",
+        "jsxTagName": "\\s*{{jsxTagNamespace}}((?:[a-z][a-z0-9]*|({{jsxTagOrAtrributeIdentifier}}))(?<!\\.|-))",
+        "jsxOpeningTagWithoutAttributes": "(<){{jsxTagName}}?\\s*(>)",
+        "jsxClosingTag": "(</){{jsxTagName}}?\\s*(>)",
+        "jsxTagStart": "(<){{jsxTagName}}(?=((<\\s*)|(\\s+))(?!\\?)|\\/?>)",
+        "jsxTagStartLookahead": "(?={{jsxTagStart}})",
+        "jsxLookBehindInExpression": "(?<!\\+\\+|--)(?<=[({\\[,?=>:*]|&&|\\|\\||\\?|\\*\\/|{{lookBehindAwait}}|{{lookBehindReturn}}|{{lookBehindDefault}}|{{lookBehindYield}}|^)\\s*"
+    },
     "patterns": [
         {
             "include": "#comment"
@@ -19,13 +30,7 @@
             "include": "#keywords"
         },
         {
-            "include": "#string"
-        },
-        {
-            "include": "#number"
-        },
-        {
-            "include": "#symbol"
+            "include": "#tag-stuff"
         }
     ],
     "repository": {
@@ -107,7 +112,7 @@
                     },
                     "patterns": [
                         {
-                            "include": "#symbol"
+                            "include": "#tag-stuff"
                         }
                     ]
                 },
@@ -122,18 +127,6 @@
                 {
                     "match": "\\b(null)\\b",
                     "name": "constant.language.null.awsl"
-                },
-                {
-                    "match": "¶[¶0-9]*",
-                    "name": "variable.parameter.input.ts"
-                },
-                {
-                    "match": "⁋[⁋0-9]*",
-                    "name": "variable.parameter.output.ts"
-                },
-                {
-                    "match": "(##|#[0-9a-zA-Z]*|&)",
-                    "name": "variable.parameter.lambda.ts"
                 },
                 {
                     "include": "#let"
@@ -170,7 +163,7 @@
                     "name": "storage.type.trait.awsl"
                 }
             },
-            "end": "([_0-9a-zA-Z]+)\\s*[{;]",
+            "end": "([_0-9a-zA-Z]+)\\s*[{};]",
             "endCaptures": {
                 "1": {
                     "name": "entity.name.type.trait.awsl"
@@ -359,26 +352,63 @@
                             "name": "invalid.illegal.escape.awsl"
                         }
                     ]
+                },
+                {
+                    "match": "(&[a-zA-Z]+;)|(&#[0-9]+;)",
+                    "name": "constant.character.escape.awsl"
                 }
             ]
         },
         "symbol": {
             "patterns": [
                 {
-                    "match": "\\b(^@[a-zA-Z][_0-9a-zA-Z]*)\\b",
-                    "name": "variable.parameter.macro.ts"
-                },
-                {
-                    "match": "\\b(\\$[a-zA-Z][_0-9a-zA-Z]*)\\b",
-                    "name": "variable.parameter.macro.ts"
-                },
-                {
                     "match": "\\b([_a-zA-Z][_0-9a-zA-Z]*)\\b",
-                    "name": "entity.name.function.awsl"
+                    "name": "meta.function-call.generic.python"
                 },
                 {
                     "match": "\\b(::)\\b",
                     "name": "entity.name.function.namespace.awsl"
+                }
+            ]
+        },
+        "call": {
+            "patterns": [
+                {
+                    "begin": "([A-Za-z_][A-Za-z0-9_]*)\\s*(\\()",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.name.tag.structure.any.awsl"
+                        },
+                        "2": {
+                            "name": "punctuation.definition.tag.begin.awsl"
+                        }
+                    },
+                    "end": "(\\))",
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.definition.tag.end.awsl"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#tag-stuff"
+                        }
+                    ]
+                }
+            ]
+        },
+        "key": {
+            "patterns": [
+                {
+                    "match": "\\b([a-zA-Z][_0-9a-zA-Z]*)\\b\\s*(=)",
+                    "captures": {
+                        "1": {
+                            "name": "constant.language.key.awsl"
+                        },
+                        "2": {
+                            "name": "keyword.operator.assignment.awsl"
+                        }
+                    }
                 }
             ]
         },
@@ -512,6 +542,26 @@
                             "include": "#tag-stuff"
                         }
                     ]
+                },
+                {
+                    "match": "(<>)",
+                    "name": "entity.name.tag.fragment.begin.html"
+                },
+                {
+                    "match": "(</>)",
+                    "name": "entity.name.tag.fragment.end.html"
+                },
+                {
+                    "begin": "(\\{)",
+                    "end": "(\\})",
+                    "patterns": [
+                        {
+                            "include": "#html"
+                        },
+                        {
+                            "include": "#tag-stuff"
+                        }
+                    ]
                 }
             ]
         },
@@ -519,6 +569,18 @@
             "patterns": [
                 {
                     "include": "#string"
+                },
+                {
+                    "include": "#number"
+                },
+                {
+                    "include": "#key"
+                },
+                {
+                    "include": "#keywords"
+                },
+                {
+                    "include": "#call"
                 },
                 {
                     "include": "#number"
