@@ -23,20 +23,23 @@ foldingStopMarker: |-
   |^[^{]*\}
   )
 variables:
-  possiblyMultilineArrow: ((<\s*$)|({{possiblyMultilineArrowWithoutTypeParameters}}))  # during lookup treat ( followed by line end as arrow
   jsxTagOrAtrributeIdentifier: '[_$[:alpha:]][-_$[:alnum:].]*'
   jsxTagNamespace: (?:({{jsxTagOrAtrributeIdentifier}})(?<!\.|-)(:))?
   jsxTagName: \s*{{jsxTagNamespace}}((?:[a-z][a-z0-9]*|({{jsxTagOrAtrributeIdentifier}}))(?<!\.|-))
   jsxOpeningTagWithoutAttributes: (<){{jsxTagName}}?\s*(>)
   jsxClosingTag: (</){{jsxTagName}}?\s*(>)
-  jsxTagStart: (<){{jsxTagName}}(?=((<\s*)|(\s+))(?!\?)|\/?>)
   jsxTagStartLookahead: (?={{jsxTagStart}})
-  jsxLookBehindInExpression: (?<!\+\+|--)(?<=[({\[,?=>:*]|&&|\|\||\?|\*\/|{{lookBehindAwait}}|{{lookBehindReturn}}|{{lookBehindDefault}}|{{lookBehindYield}}|^)\s*
+  jsxTagStart: (<){{jsxTagName}}(?=((<\s*)|(\s+))(?!\?)|\/?>)
+  jsxLookBehindInExpression: (?<!\+\+|--)(?<=[({\[,?=>:*]|&&|\|\||\?|\*\/|{{lookBehindAwait}}|^)\s*
+  lookBehindAwait: '^await|{{nonPropertyLookBehind}}await'
+  lookBehindReturn: '^return|{{nonPropertyLookBehind}}return'
+  nonPropertyLookBehind: '[^\._$[:alnum:]]'
 patterns:
   - include: '#comment'
+  - name: invalid.illegal
+    begin: '(<){{jsxTagName}}\s*(>)'
+    end: '(</){{jsxTagName}}\s*(>)'
   - include: '#html'
-  - include: '#keywords'
-  - include: '#tag-stuff'
 repository:
   comment:
     patterns:
@@ -291,3 +294,167 @@ repository:
       - include: '#call'
       - include: '#number'
       - include: '#symbol'
+  # jsx syntax is taken from https://github.com/babel/babel-sublime
+  jsx:
+    patterns:
+    - include: '#jsx-tag-without-attributes-in-expression'
+    - include: '#jsx-tag-in-expression'
+
+  #jsx tags
+  jsx-tag-without-attributes-in-expression:
+    begin: '{{jsxLookBehindInExpression}}(?={{jsxOpeningTagWithoutAttributes}})'
+    end: (?!{{jsxOpeningTagWithoutAttributes}})
+    patterns:
+    - include: '#jsx-tag-without-attributes'
+
+  jsx-tag-without-attributes:
+    name: meta.tag.without-attributes.awsl
+    begin: '{{jsxOpeningTagWithoutAttributes}}'
+    end: '{{jsxClosingTag}}'
+    beginCaptures:
+      '1': {name: punctuation.definition.tag.begin.awsl}
+      '2': {name: entity.name.tag.namespace.awsl}
+      '3': {name: punctuation.separator.namespace.awsl}
+      '4': {name: entity.name.tag.awsl}
+      '5': {name: support.class.component.awsl}
+      '6': {name: punctuation.definition.tag.end.awsl}
+    endCaptures:
+      '1': {name: punctuation.definition.tag.begin.awsl}
+      '2': {name: entity.name.tag.namespace.awsl}
+      '3': {name: punctuation.separator.namespace.awsl}
+      '4': {name: entity.name.tag.awsl}
+      '5': {name: support.class.component.awsl}
+      '6': {name: punctuation.definition.tag.end.awsl}
+    contentName: meta.jsx.children.awsl
+    patterns:
+    - include: '#jsx-children'
+
+  jsx-tag-in-expression:
+    # We need to differentiate between the relational '<' operator and the beginning of a tag using the surrounding context.
+    begin: |-
+      (?x)
+        {{jsxLookBehindInExpression}}
+        (?!<\s*[_$[:alpha:]][_$[:alnum:]]*((\s+extends\s+[^=>])|,)) # look ahead is not type parameter of arrow
+        {{jsxTagStartLookahead}}
+    end: (?!{{jsxTagStart}})
+    patterns:
+    - include: '#jsx-tag'
+
+  jsx-tag:
+    name: meta.tag.awsl
+    begin: '{{jsxTagStartLookahead}}'
+    end: (/>)|(?:{{jsxClosingTag}})
+    endCaptures:
+     '1': { name: punctuation.definition.tag.end.awsl }
+     '2': { name: punctuation.definition.tag.begin.awsl }
+     '3': { name: entity.name.tag.namespace.awsl }
+     '4': { name: punctuation.separator.namespace.awsl }
+     '5': { name: entity.name.tag.awsl }
+     '6': { name: support.class.component.awsl }
+     '7': { name: punctuation.definition.tag.end.awsl }
+    patterns:
+    - begin: '{{jsxTagStart}}'
+      beginCaptures:
+        '1': { name: punctuation.definition.tag.begin.awsl }
+        '2': { name: entity.name.tag.namespace.awsl }
+        '3': { name: punctuation.separator.namespace.awsl }
+        '4': { name: entity.name.tag.awsl }
+        '5': { name: support.class.component.awsl }
+      end: (?=[/]?>)
+      patterns:
+      - include: '#comment'
+      - include: '#jsx-tag-attributes'
+    - begin: (>)
+      beginCaptures:
+        '1': { name: punctuation.definition.tag.end.awsl }
+      end: (?=</)
+      contentName: meta.jsx.children.awsl
+      patterns:
+      - include: '#jsx-children'
+
+  #jsx children
+  jsx-children:
+    patterns:
+    - include: '#jsx-tag-without-attributes'
+    # Because this would be included from the jsx-children, this doesnt need to inspect surrounding context
+    - include: '#jsx-tag'
+    - include: '#jsx-evaluated-code'
+    - include: '#jsx-entities'
+
+  #entities and evaluated code
+  jsx-evaluated-code:
+    contentName: meta.embedded.expression.awsl
+    begin: \{
+    end: \}
+    beginCaptures:
+      '0': { name: punctuation.section.embedded.begin.awsl }
+    endCaptures:
+      '0': { name: punctuation.section.embedded.end.awsl }
+    patterns:
+    - include: '#tag-stuff'
+
+  jsx-entities:
+    patterns:
+    - name: constant.character.entity.awsl
+      match: (&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)
+      captures:
+        '1': {name: punctuation.definition.entity.awsl}
+        '3': {name: punctuation.definition.entity.awsl}
+    - name: invalid.illegal.bad-ampersand.awsl
+      match: '&'
+
+  #jsx attributes
+  jsx-tag-attributes:
+    name: meta.tag.attributes.awsl
+    begin: \s+
+    end: (?=[/]?>)
+    patterns:
+    - include: '#comment'
+    - include: '#jsx-tag-attribute-name'
+    - include: '#jsx-tag-attribute-assignment'
+    - include: '#jsx-string-double-quoted'
+    - include: '#jsx-string-single-quoted'
+    - include: '#jsx-evaluated-code'
+    - include: '#jsx-tag-attributes-illegal'
+
+  jsx-tag-attribute-name:
+    match: |-
+      (?x)
+        \s*
+        (?:({{jsxTagOrAtrributeIdentifier}})(:))?
+        ([_$[:alpha:]][-_$[:alnum:]]*)
+        (?=\s|=|/?>|/\*|//)
+    captures:
+      '1': {name: entity.other.attribute-name.namespace.awsl}
+      '2': {name: punctuation.separator.namespace.awsl}
+      '3': {name: entity.other.attribute-name.awsl}
+
+  jsx-tag-attribute-assignment:
+    name: keyword.operator.assignment.awsl
+    match: =(?=\s*(?:'|"|{|/\*|//|\n))
+
+  jsx-string-double-quoted:
+    name: string.quoted.double.awsl
+    begin: '"'
+    end: '"'
+    beginCaptures:
+      '0': {name: punctuation.definition.string.begin.awsl}
+    endCaptures:
+      '0': {name: punctuation.definition.string.end.awsl}
+    patterns:
+    - include: '#jsx-entities'
+
+  jsx-string-single-quoted:
+    name: string.quoted.single.awsl
+    begin: "'"
+    end: "'"
+    beginCaptures:
+      '0': {name: punctuation.definition.string.begin.awsl}
+    endCaptures:
+      '0': {name: punctuation.definition.string.end.awsl}
+    patterns:
+    - include: '#jsx-entities'
+
+  jsx-tag-attributes-illegal:
+    name: invalid.illegal.attribute.awsl
+    match: \S+

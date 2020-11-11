@@ -31,7 +31,7 @@ import "base";
 def cdn_katex(enable: false) {
     if enable {
         <>
-        <p> </p>
+        <p> 2</p>2
         </>
     }
 }
@@ -51,7 +51,7 @@ extends head {
 extends content {
     <h1>Index</h1>
     <p class="important">
-      Welcome to my awesome homepage.
+    2  Welcome to my awesome homepage.
     </p>
 }
 
