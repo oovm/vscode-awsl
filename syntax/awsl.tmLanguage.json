@@ -459,6 +459,27 @@
                     ]
                 },
                 {
+                    "match": "(<)([a-zA-Z][a-zA-Z0-9]*)([^/>]*)(/>)",
+                    "captures": {
+                        "1": {
+                            "name": "punctuation.definition.tag.end.awsl"
+                        },
+                        "2": {
+                            "name": "entity.name.tag.html.awsl"
+                        },
+                        "3": {
+                            "patterns": [
+                                {
+                                    "include": "#tag-stuff"
+                                }
+                            ]
+                        },
+                        "4": {
+                            "name": "punctuation.definition.tag.end.awsl"
+                        }
+                    }
+                },
+                {
                     "begin": "(<)([a-zA-Z][a-zA-Z0-9]*)([^>]*)(>)",
                     "beginCaptures": {
                         "1": {
@@ -574,23 +595,17 @@
                 }
             ]
         },
-        "html-escape": [
-            {
-                "name": "constant.character.escape.awsl",
-                "match": "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)",
-                "captures": {
-                    "1": {
-                        "name": "punctuation.definition.entity.awsl"
-                    },
-                    "3": {
-                        "name": "punctuation.definition.entity.awsl"
-                    }
+        "html-escape": {
+            "name": "constant.character.escape.awsl",
+            "match": "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.entity.awsl"
+                },
+                "3": {
+                    "name": "punctuation.definition.entity.awsl"
                 }
-            },
-            {
-                "name": "invalid.illegal.bad-ampersand.awsl",
-                "match": "&"
             }
-        ]
+        }
     }
 }
