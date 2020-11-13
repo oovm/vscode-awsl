@@ -16,7 +16,10 @@
             "include": "#html"
         },
         {
-            "include": "#tag-stuff"
+            "include": "#statements"
+        },
+        {
+            "include": "#literals"
         }
     ],
     "repository": {
@@ -76,7 +79,7 @@
         "keywords": {
             "patterns": [
                 {
-                    "match": "\\b(using|macro|def|as|with|type|external|extending|where)\\b",
+                    "match": "\\b(using|macro|as|with|type|external|extending|where)\\b",
                     "name": "keyword.control.definition.awsl"
                 },
                 {
@@ -102,7 +105,7 @@
                     },
                     "patterns": [
                         {
-                            "include": "#tag-stuff"
+                            "include": "#literals"
                         }
                     ]
                 },
@@ -117,12 +120,22 @@
                 {
                     "match": "\\b(null)\\b",
                     "name": "constant.language.null.awsl"
-                },
+                }
+            ]
+        },
+        "statements": {
+            "patterns": [
                 {
                     "include": "#let"
                 },
                 {
+                    "include": "#def"
+                },
+                {
                     "include": "#block"
+                },
+                {
+                    "include": "#extends"
                 }
             ]
         },
@@ -146,17 +159,57 @@
                 }
             ]
         },
+        "def": {
+            "begin": "\\b(def)\\b",
+            "beginCaptures": {
+                "1": {
+                    "name": "storage.type.let.awsl"
+                }
+            },
+            "end": "([_0-9a-zA-Z]+)\\s*[(]",
+            "endCaptures": {
+                "1": {
+                    "name": "entity.name.function.awsl"
+                }
+            },
+            "patterns": [
+                {
+                    "match": "([_0-9a-zA-Z]+)",
+                    "name": "storage.modifier.awsl"
+                }
+            ]
+        },
         "block": {
             "begin": "\\b(block)\\b",
             "beginCaptures": {
                 "1": {
-                    "name": "storage.type.trait.awsl"
+                    "name": "storage.type.block.awsl"
                 }
             },
             "end": "([_0-9a-zA-Z]+)\\s*[{};]",
             "endCaptures": {
                 "1": {
-                    "name": "entity.name.type.trait.awsl"
+                    "name": "entity.name.type.block.awsl"
+                }
+            },
+            "patterns": [
+                {
+                    "match": "([_0-9a-zA-Z]+)",
+                    "name": "storage.modifier.awsl"
+                }
+            ]
+        },
+        "extends": {
+            "begin": "\\b(extends)\\b",
+            "beginCaptures": {
+                "1": {
+                    "name": "storage.type.extends.awsl"
+                }
+            },
+            "end": "([_0-9a-zA-Z]+)\\s*[{};]",
+            "endCaptures": {
+                "1": {
+                    "name": "entity.name.type.extends.awsl"
                 }
             },
             "patterns": [
@@ -381,7 +434,7 @@
                     },
                     "patterns": [
                         {
-                            "include": "#tag-stuff"
+                            "include": "#literals"
                         }
                     ]
                 }
@@ -402,7 +455,7 @@
                 }
             ]
         },
-        "tag-stuff": {
+        "literals": {
             "patterns": [
                 {
                     "include": "#string"
@@ -459,6 +512,9 @@
                     ]
                 },
                 {
+                    "include": "#html-special"
+                },
+                {
                     "match": "(<)([a-zA-Z][a-zA-Z0-9]*)([^/>]*)(/>)",
                     "captures": {
                         "1": {
@@ -470,7 +526,7 @@
                         "3": {
                             "patterns": [
                                 {
-                                    "include": "#tag-stuff"
+                                    "include": "#literals"
                                 }
                             ]
                         },
@@ -491,7 +547,7 @@
                         "3": {
                             "patterns": [
                                 {
-                                    "include": "#tag-stuff"
+                                    "include": "#literals"
                                 }
                             ]
                         },
@@ -525,6 +581,48 @@
                 }
             ]
         },
+        "html-embbed": {
+            "contentName": "meta.embedded.expression.awsl",
+            "begin": "\\{",
+            "end": "\\}",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.embedded.begin.awsl"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.embedded.end.awsl"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#statements"
+                },
+                {
+                    "include": "#literals"
+                }
+            ]
+        },
+        "html-escape": {
+            "name": "constant.character.escape.awsl",
+            "match": "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.entity.awsl"
+                },
+                "3": {
+                    "name": "punctuation.definition.entity.awsl"
+                }
+            }
+        },
+        "html-special": {
+            "patterns": [
+                {
+                    "include": "#style-css"
+                }
+            ]
+        },
         "html-inline": {
             "patterns": [
                 {
@@ -546,7 +644,7 @@
                     },
                     "patterns": [
                         {
-                            "include": "#tag-stuff"
+                            "include": "#literals"
                         }
                     ]
                 },
@@ -569,43 +667,57 @@
                     },
                     "patterns": [
                         {
-                            "include": "#tag-stuff"
+                            "include": "#literals"
                         }
                     ]
                 }
             ]
         },
-        "html-embbed": {
-            "contentName": "meta.embedded.expression.awsl",
-            "begin": "\\{",
-            "end": "\\}",
+        "style-css": {
+            "begin": "(<)(style)\\b(?=[^>]*type=\"text/(css|scss)\")(?![^/>]*/>\\s*$)",
             "beginCaptures": {
-                "0": {
-                    "name": "punctuation.section.embedded.begin.awsl"
+                "1": {
+                    "name": "punctuation.definition.tag.begin.html"
+                },
+                "2": {
+                    "name": "entity.name.tag.style.html"
                 }
             },
+            "end": "(</)(style)(>)",
             "endCaptures": {
-                "0": {
-                    "name": "punctuation.section.embedded.end.awsl"
+                "1": {
+                    "name": "punctuation.definition.tag.begin.html"
+                },
+                "2": {
+                    "name": "entity.name.tag.style.html"
+                },
+                "3": {
+                    "name": "punctuation.definition.tag.end.html"
                 }
             },
             "patterns": [
                 {
-                    "include": "#tag-stuff"
+                    "include": "#literals"
+                },
+                {
+                    "contentName": "source.css.scss",
+                    "begin": "(>)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "punctuation.definition.tag.end.html"
+                        }
+                    },
+                    "end": "(?=</style>)",
+                    "patterns": [
+                        {
+                            "include": "source.css.scss"
+                        }
+                    ]
                 }
             ]
         },
-        "html-escape": {
-            "name": "constant.character.escape.awsl",
-            "match": "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)",
-            "captures": {
-                "1": {
-                    "name": "punctuation.definition.entity.awsl"
-                },
-                "3": {
-                    "name": "punctuation.definition.entity.awsl"
-                }
-            }
+        "string-css": {
+            "name": "unimplemented"
         }
     }
 }
