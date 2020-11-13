@@ -27,16 +27,6 @@ import "base";
 
 
 
-def cdn_katex(enable: false) {
-    if enable {
-        <>
-        <p> 2</p>2
-        </>
-    }
-}
-
-
-
 include "base";
 
 extends head {

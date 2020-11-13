@@ -57,10 +57,12 @@ repository:
     patterns:
       - match: \b(using|macro|as|with|type|external|extending|where)\b
         name: keyword.control.definition.awsl
-      - match: \b(if|else|ef|switch|match|case)\b
+      - match: \b(switch|match|case)\b
         name: keyword.control.flow.awsl
       - match: \b(do|while|loop|return|yield|break|pass)\b
         name: keyword.control.loop.awsl
+      - match: \b(this|super)\b
+        name: keyword.control.context.awsl
       - begin: \b(for)\b
         beginCaptures:
           '1': {name: keyword.control.loop.awsl}
@@ -102,25 +104,33 @@ repository:
       - match: ([_0-9a-zA-Z]+)
         name: storage.modifier.awsl
   block:
-    begin: \b(block)\b
+    begin: \b(block|if|ef|else(?:\s*if)?)\b([^{]*)(\{)
     beginCaptures:
       '1': {name: storage.type.block.awsl}
-    end: ([_0-9a-zA-Z]+)\s*[{};]
+      '2':
+        patterns:
+          - include: '#literals'
+      '3': {name: punctuation.definition.block.begin.awsl}
+    end: (\})
     endCaptures:
-      '1': {name: entity.name.type.block.awsl}
+      '1': {name: punctuation.definition.block.end.awsl}
     patterns:
-      - match: ([_0-9a-zA-Z]+)
-        name: storage.modifier.awsl
+      - include: '#html'
+      - include: '#html-escape'
+      - include: '#html-embbed'
   extends:
-    begin: \b(extends)\b
+    begin: \b(extends)\b\s*([_0-9a-zA-Z]+)\s*(\{)
     beginCaptures:
       '1': {name: storage.type.extends.awsl}
-    end: ([_0-9a-zA-Z]+)\s*[{};]
+      '2': {name: entity.name.type.extends.awsl}
+      '3': {name: punctuation.definition.block.begin.awsl}
+    end: (\})
     endCaptures:
-      '1': {name: entity.name.type.extends.awsl}
+      '1': {name: punctuation.definition.block.end.awsl}
     patterns:
-      - match: ([_0-9a-zA-Z]+)
-        name: storage.modifier.awsl
+      - include: '#html'
+      - include: '#html-escape'
+      - include: '#html-embbed'
   operators:
     patterns:
       - match: \b(===?|=!=|<=|>=|<>)\b
@@ -276,9 +286,9 @@ repository:
   html-embbed:
     contentName: meta.embedded.expression.awsl
     begin: \{
-    end: \}
     beginCaptures:
       '0': { name: punctuation.section.embedded.begin.awsl }
+    end: \}
     endCaptures:
       '0': { name: punctuation.section.embedded.end.awsl }
     patterns:
@@ -293,6 +303,7 @@ repository:
   html-special:
     patterns:
       - include: '#style-css'
+      - include: '#script-css'
   html-inline:
     patterns:
       - name: meta.tag.inline.any.html
@@ -320,7 +331,7 @@ repository:
     beginCaptures:
       '1': {name: punctuation.definition.tag.begin.html}
       '2': {name: entity.name.tag.style.html}
-    end: "(</)(style)(>)"
+    end: (</)(style)(>)
     endCaptures:
       '1': {name: punctuation.definition.tag.begin.html}
       '2': {name: entity.name.tag.style.html}
@@ -335,5 +346,25 @@ repository:
         end: (?=</style>)
         patterns:
           - include: source.css.scss
+  script-js:
+    begin: (<)(script)\b(?=[^>]*type="(text|application)/javascript")?(?![^/>]*/>\s*$)
+    beginCaptures:
+      '1': {name: punctuation.definition.tag.begin.html}
+      '2': {name: entity.name.tag.style.html}
+    end: (</)(script)(>)
+    endCaptures:
+      '1': {name: punctuation.definition.tag.begin.html}
+      '2': {name: entity.name.tag.style.html}
+      '3': {name: punctuation.definition.tag.end.html}
+    patterns:
+      - include: "#literals"
+      - contentName: source.js
+        begin: (>)
+        beginCaptures:
+          '1':
+            name: punctuation.definition.tag.end.html
+        end: (?=</script>)
+        patterns:
+          - include: source.js
   string-css:
     name: unimplemented
