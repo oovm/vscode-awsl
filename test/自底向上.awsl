@@ -1,10 +1,9 @@
 自底向上
 
-
 let title = </>
 
 let head = <>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css"></link>
     <title>{title} - My Webpage</title>
 </>
 
