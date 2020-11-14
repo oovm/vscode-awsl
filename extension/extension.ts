@@ -1,10 +1,6 @@
 import * as vscode from 'vscode'
 import * as child_process from 'child_process'
 
-// import { rs_format } from 'notedown_vscode'
-//import { openPreview } from './preview'
-
-
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -16,16 +12,16 @@ let client: LanguageClient
 
 function start_client() {
     let serverOptions: Executable = {
-        command: 'notedown-lsp',
+        command: 'awsl-lsp',
     }
 
     let clientOptions: LanguageClientOptions = {
-        documentSelector: [{ scheme: 'file', language: 'notedown' }],
+        documentSelector: [{ scheme: 'file', language: 'awsl' }],
     }
 
     client = new LanguageClient(
-        'notedownLanguageServer',
-        'Notedown Server',
+        'awslLanguageServer',
+        'AWSL Server',
         serverOptions,
         clientOptions,
     )
@@ -50,8 +46,8 @@ async function installServerBinary(): Promise<boolean> {
         { type: 'cargo', task: 'install' },
         vscode.workspace.workspaceFolders![0],
         'Installing lsp server',
-        'notedown-lsp',
-        new vscode.ShellExecution('cargo install notedown-lsp'),
+        'awsl-lsp',
+        new vscode.ShellExecution('cargo install awsl-lsp'),
     )
     const promise = new Promise<boolean>((resolve) => {
         vscode.tasks.onDidEndTask((e) => {
@@ -70,7 +66,7 @@ async function installServerBinary(): Promise<boolean> {
 
 async function tryToInstallLanguageServer(configuration: vscode.WorkspaceConfiguration) {
     const selected = await vscode.window.showInformationMessage(
-        'Install notedown-lsp-server (Rust toolchain required) ?',
+        'Install awsl-lsp-server (Rust toolchain required) ?',
         'Install',
         'Never',
     )
@@ -88,7 +84,7 @@ async function tryToInstallLanguageServer(configuration: vscode.WorkspaceConfigu
 export async function activate(context: vscode.ExtensionContext) {
     const configuration = vscode.workspace.getConfiguration('notedown')
     const useLanguageServer = configuration.get<boolean>('useLanguageServer')
-    const shouldStartClient = useLanguageServer && (await is_installed('notedown-lsp'))
+    const shouldStartClient = useLanguageServer && (await is_installed('awsl-lsp'))
     if (shouldStartClient) {
         start_client()
     } else if (useLanguageServer) {

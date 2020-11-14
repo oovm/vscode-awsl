@@ -1,6 +1,6 @@
-version: v0.1.0
+version: v0.2.0
 scopeName: source.awsl
-uuid: 77108132-b3a9-4456-b8e6-05fca177371a
+uuid: 3be16738-a75d-43d7-aee8-e4bcfb243c07
 information_for_contributors:
   - 'aster: galaster@foxmail.com'
 keyEquivalent: ^~H
@@ -46,11 +46,9 @@ repository:
       - name: comment.block.html
         begin: <!--
         end: --\s*>
-        captures:
-          '0': {name: punctuation.definition.comment.html}
-        patterns:
-          - name: invalid.illegal.bad-comments-or-CDATA.html
-            match: --
+      - name: comment.block.html
+        begin: <?
+        end: ?>
       - name: comment.doctype.html
         match: (<)(!DOCTYPE)(.*)(>)
   keywords:
@@ -82,7 +80,7 @@ repository:
       - include: '#let'
       - include: '#def'
       - include: '#block'
-      - include: '#extends'
+      - include: '#if'
   let:
     begin: \b(let)\b
     beginCaptures:
@@ -103,8 +101,8 @@ repository:
     patterns:
       - match: ([_0-9a-zA-Z]+)
         name: storage.modifier.awsl
-  block:
-    begin: \b(block|if|ef|else(?:\s*if)?)\b([^{]*)(\{)
+  if:
+    begin: \b(if|ef|else(?:\s*if)?)\b([^{]*)(\{)
     beginCaptures:
       '1': {name: storage.type.block.awsl}
       '2':
@@ -115,18 +113,19 @@ repository:
     endCaptures:
       '1': {name: punctuation.definition.block.end.awsl}
     patterns:
+      - include: '#comment'
       - include: '#html'
-      - include: '#html-escape'
-      - include: '#html-embbed'
-  extends:
-    begin: \b(extends)\b\s*([_0-9a-zA-Z]+)\s*(\{)
+      - include: '#statements'
+      - include: '#literals'
+  block:
+    begin: \b(block|extends)\b\s*([_0-9a-zA-Z]+)\s*(\{)
     beginCaptures:
       '1': {name: storage.type.extends.awsl}
       '2': {name: entity.name.type.extends.awsl}
-      '3': {name: punctuation.definition.block.begin.awsl}
+      '3': {name: punctuation.section.embedded.begin.awsl}
     end: (\})
     endCaptures:
-      '1': {name: punctuation.definition.block.end.awsl}
+      '1': {name: punctuation.section.embedded.end.awsl}
     patterns:
       - include: '#html'
       - include: '#html-escape'
@@ -135,8 +134,6 @@ repository:
     patterns:
       - match: \b(===?|=!=|<=|>=|<>)\b
         name: keyword.operator.comparison.awsl
-      - match: \b(\|>|/@|@@@|@@|@)\b
-        name: keyword.operator.apply.awsl
       - match: \b(-|\+|\*|\/|\^)\b
         name: keyword.operator.arithmetic.awsl
       - match: \b(\?=|:=|=)\b
@@ -287,10 +284,10 @@ repository:
     contentName: meta.embedded.expression.awsl
     begin: \{
     beginCaptures:
-      '0': { name: punctuation.section.embedded.begin.awsl }
+      '0': { name: punctuation.definition.block.begin.awsl }
     end: \}
     endCaptures:
-      '0': { name: punctuation.section.embedded.end.awsl }
+      '0': { name: punctuation.definition.block.end.awsl }
     patterns:
       - include: '#statements'
       - include: '#literals'
@@ -303,7 +300,7 @@ repository:
   html-special:
     patterns:
       - include: '#style-css'
-      - include: '#script-css'
+      - include: '#script-js'
   html-inline:
     patterns:
       - name: meta.tag.inline.any.html
@@ -347,7 +344,7 @@ repository:
         patterns:
           - include: source.css.scss
   script-js:
-    begin: (<)(script)\b(?=[^>]*type="(text|application)/javascript")?(?![^/>]*/>\s*$)
+    begin: (<)(script)\b(?=[^>]*type="(text|application)/javascript")(?![^/>]*/>\s*$)
     beginCaptures:
       '1': {name: punctuation.definition.tag.begin.html}
       '2': {name: entity.name.tag.style.html}
@@ -367,4 +364,6 @@ repository:
         patterns:
           - include: source.js
   string-css:
+    name: unimplemented
+  string-js:
     name: unimplemented
